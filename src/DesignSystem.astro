@@ -52,6 +52,10 @@ interface Props {
   displayName?: string;   // the face names shown in the specimen
   bodyName?: string;
   intro?: string;         // one line under the cover title
+  /* The cover mark. Defaults to the estate convention; pass null for a site
+     that has no mark asset (the agency's own site has none), and the cover
+     simply opens on the title instead of a broken image. */
+  mark?: string | null;
 }
 
 const {
@@ -59,13 +63,14 @@ const {
   spacing = [], logos = [],
   displayName = "Display", bodyName = "Body",
   intro = "Every component here is imported from the live site, so this page cannot drift from the thing it documents.",
+  mark = "/brand/mark.svg",
 } = Astro.props;
 
 const has = (name: string) => Astro.slots.has(name);
 ---
 
 <header class="sys-cover">
-  <img class="sys-cover-mark" src="/brand/mark.svg" alt="" />
+  {mark && <img class="sys-cover-mark" src={mark} alt="" />}
   <h1>Design<br />system</h1>
   <p class="sys-lede">{intro}</p>
   <div class="sys-contents">
