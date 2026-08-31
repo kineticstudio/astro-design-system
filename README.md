@@ -76,6 +76,25 @@ Each is commented where it lives. This is the index.
 - **`html { scroll-behavior: smooth }` in a host site** makes even a plain
   `scrollTo` animate, so the studio's anchor ride suspends it for the duration.
 
+## Working on the package locally
+
+The estate installs this by relative path (`file:../astro-design-system`), so
+`node_modules/@kineticstudio/astro-design-system` is a SYMLINK to the real
+folder. Edit the package, rebuild the site, and the change is there — no
+reinstall, no version bump.
+
+Two things worth knowing before you conclude a change did not propagate:
+
+- **A page loads more than one stylesheet.** Astro emits several, and the
+  document's rules land in `system.*.css`, not the first file in the list.
+  Grepping the wrong one reads exactly like a broken build. (Cost ten minutes
+  on the first day.)
+- **Clear `node_modules/.vite` if a change genuinely will not appear.** Vite
+  treats `node_modules` as immutable and caches accordingly.
+
+A site outside the estate (Ramble's repo lives with TanookiLabs) installs from
+GitHub instead, and there a change means a fresh install rather than a rebuild.
+
 ## Slots
 
 | slot | what goes in it |
