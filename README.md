@@ -24,7 +24,7 @@ const PALETTE = [
     use: "The ground the brand leads with." },
 ];
 const TYPE_SCALE = [
-  { label: "Display", size: "clamp(40px,6vw,78px)", face: "var(--display)",
+  { label: "Display", size: "clamp(40px,6vw,78px)", face: "var(--sys-display)",
     weight: 300, lh: 0.96, sample: "A headline" },
 ];
 ---

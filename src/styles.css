@@ -9,17 +9,17 @@
 .sys-cover { padding: clamp(80px, 14vh, 160px) var(--gutter) 90px; background: var(--bg); color: var(--ink); }
 .sys-cover-mark { width: 52px; margin-bottom: 34px; }
 .sys-cover h1 {
-  margin: 0 0 26px; font-family: var(--display); font-weight: 300;
+  margin: 0 0 26px; font-family: var(--sys-display); font-weight: 300;
   font-size: clamp(56px, 10vw, 128px); line-height: 0.92; letter-spacing: -0.02em;
 }
 .sys-lede { margin: 0 0 44px; max-width: 40ch; color: var(--muted); font-size: 19px; line-height: 1.5; }
 .sys-contents { display: grid; max-width: 420px; }
 .sys-c-row {
   display: flex; gap: 16px; align-items: baseline; padding: 14px 2px;
-  border-top: 1px solid var(--surface); font-family: var(--display); font-size: 22px;
+  border-top: 1px solid var(--surface); font-family: var(--sys-display); font-size: 22px;
 }
 .sys-c-row:last-child { border-bottom: 1px solid var(--surface); }
-.sys-c-row i { font-style: normal; color: var(--accent); font-size: 14px; font-family: var(--body); }
+.sys-c-row i { font-style: normal; color: var(--accent); font-size: 14px; font-family: var(--sys-body); }
 
 /* ---- chapters ----
    Full-bleed light bands. The ground change IS the delineation; no hairline
@@ -31,8 +31,8 @@
   display: grid; grid-template-columns: auto 1fr; column-gap: 28px; row-gap: 10px;
   align-items: baseline;
 }
-.sys-ch-n { font-family: var(--display); font-weight: 300; line-height: 0.8; font-size: clamp(72px, 12vw, 150px); color: var(--accent); }
-.sys-chapter h2 { margin: 0; font-family: var(--display); font-weight: 300; font-size: clamp(40px, 7vw, 84px); line-height: 0.95; letter-spacing: -0.02em; }
+.sys-ch-n { font-family: var(--sys-display); font-weight: 300; line-height: 0.8; font-size: clamp(72px, 12vw, 150px); color: var(--accent); }
+.sys-chapter h2 { margin: 0; font-family: var(--sys-display); font-weight: 300; font-size: clamp(40px, 7vw, 84px); line-height: 0.95; letter-spacing: -0.02em; }
 .sys-ch-note { grid-column: 2; margin: 0; max-width: 46ch; color: var(--contrast-muted); font-size: 16px; }
 
 /* ---- bands alternate ground so every edge is unmissable ---- */
@@ -44,7 +44,7 @@
 .sys-band.light .sys-space-card p, .sys-band.light .sys-space-card code { color: var(--contrast-muted); }
 
 .sys-head { display: flex; align-items: baseline; gap: 16px; margin-bottom: 30px; }
-.sys-head h3 { margin: 0; font-family: var(--display); font-weight: 300; font-size: clamp(28px, 3.6vw, 44px); letter-spacing: -0.01em; }
+.sys-head h3 { margin: 0; font-family: var(--sys-display); font-weight: 300; font-size: clamp(28px, 3.6vw, 44px); letter-spacing: -0.01em; }
 .sys-src { margin-left: auto; font-family: ui-monospace, Menlo, monospace; font-size: 11.5px; opacity: 0.55; }
 .sys-note { margin: -14px 0 30px; max-width: 54ch; color: var(--muted); font-size: 16px; }
 
@@ -53,14 +53,14 @@
 .sys-chip {
   all: unset; box-sizing: border-box; cursor: pointer;
   display: flex; flex-direction: column; gap: 10px; justify-content: space-between;
-  min-height: 150px; padding: 22px 24px; border-radius: 16px; font-family: var(--body);
+  min-height: 150px; padding: 22px 24px; border-radius: 16px; font-family: var(--sys-body);
   box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
   transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .sys-chip.tall { min-height: 240px; }
 .sys-chip:hover, .sys-chip:focus-visible { transform: translateY(-3px); }
 .sys-chip:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
-.sys-chip-name { font-family: var(--display); font-weight: 300; font-size: clamp(24px, 2.6vw, 38px); }
+.sys-chip-name { font-family: var(--sys-display); font-weight: 300; font-size: clamp(24px, 2.6vw, 38px); }
 .sys-chip-use { font-size: 13.5px; opacity: 0.8; max-width: 34ch; }
 .sys-chip-foot { display: flex; gap: 14px; align-items: baseline; font-family: ui-monospace, Menlo, monospace; font-size: 12px; }
 .sys-chip-foot .dim { opacity: 0.6; }
@@ -75,13 +75,13 @@
 
 /* ---- typography ---- */
 .sys-specimen { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.6fr); gap: 48px; align-items: center; margin-bottom: 56px; }
-.sys-aa { font-family: var(--display); font-weight: 300; font-size: clamp(120px, 20vw, 280px); line-height: 0.8; color: var(--accent); }
+.sys-aa { font-family: var(--sys-display); font-weight: 300; font-size: clamp(120px, 20vw, 280px); line-height: 0.8; color: var(--accent); }
 .sys-faces { display: grid; gap: 30px; }
-.sys-face-name { margin: 0 0 8px; font-family: var(--display); font-size: 24px; font-weight: 300; }
-.sys-face-name span { font-family: var(--body); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; margin-left: 12px; }
+.sys-face-name { margin: 0 0 8px; font-family: var(--sys-display); font-size: 24px; font-weight: 300; }
+.sys-face-name span { font-family: var(--sys-body); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; margin-left: 12px; }
 .sys-alphabet { margin: 0; font-size: 21px; line-height: 1.3; word-break: break-word; }
-.sys-alphabet.display { font-family: var(--display); font-weight: 300; }
-.sys-alphabet.body { font-family: var(--body); }
+.sys-alphabet.display { font-family: var(--sys-display); font-weight: 300; }
+.sys-alphabet.body { font-family: var(--sys-body); }
 .sys-scale-row { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 28px; align-items: baseline; padding: 22px 0; border-top: 1px solid var(--contrast-surface); }
 .sys-scale-meta { display: grid; gap: 3px; }
 .sys-scale-meta span { font-size: 11.5px; letter-spacing: 0.15em; text-transform: uppercase; }
@@ -99,14 +99,14 @@
 .sys-spacing { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
 .sys-space-card { display: grid; gap: 8px; align-content: start; background: rgba(128,128,128,0.06); border-radius: 16px; padding: 22px; box-shadow: inset 0 0 0 1px var(--contrast-surface); }
 .sys-space-bar { height: 10px; background: var(--accent); border-radius: 3px; }
-.sys-space-name { font-family: var(--display); font-size: 21px; font-weight: 300; }
+.sys-space-name { font-family: var(--sys-display); font-size: 21px; font-weight: 300; }
 .sys-space-card code { font-family: ui-monospace, Menlo, monospace; font-size: 11px; }
 .sys-space-card p { margin: 0; font-size: 13px; }
 
 /* ---- illustration ---- */
 .sys-gfx-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
 .sys-gfx-row figure { margin: 0; background: rgba(128,128,128,0.05); border-radius: 16px; padding: 18px; box-shadow: inset 0 0 0 1px var(--contrast-surface); }
-.sys-gfx-row figcaption { display: grid; gap: 2px; margin-top: 10px; font-family: var(--display); font-size: 20px; font-weight: 300; }
+.sys-gfx-row figcaption { display: grid; gap: 2px; margin-top: 10px; font-family: var(--sys-display); font-size: 20px; font-weight: 300; }
 .sys-gfx-row figcaption span { font-family: ui-monospace, Menlo, monospace; font-size: 11px; opacity: 0.55; }
 
 /* ---- logo ----
