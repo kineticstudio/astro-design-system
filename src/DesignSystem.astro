@@ -1,0 +1,234 @@
+---
+/* THE DESIGN SYSTEM DOCUMENT.
+ *
+ * Every Kinetic Astro site renders this. The site supplies its brand — the
+ * palette, the faces, its real components — and this supplies the document.
+ * Redesign it here once and every site that depends on it moves on its next
+ * build. That is the whole point of it being a package rather than a file
+ * each site copied: copies drift the moment anyone redesigns (Hunter,
+ * 2026-08-31).
+ *
+ * WHAT THE HOST SITE MUST PROVIDE
+ *   tokens.css declaring: --bg --ink --muted --surface, --contrast-bg
+ *   --contrast-ink --contrast-muted --contrast-surface, --accent,
+ *   --display --body, --gutter. This document styles itself entirely from
+ *   those, which is why it looks like each brand without knowing any of them.
+ *
+ * TWO RULES IT EXISTS TO ENFORCE
+ *   1. The catalog shows the REAL components, passed in through slots. One
+ *      that redraws its examples by hand is a second implementation, and it
+ *      starts lying the first time somebody changes the real one.
+ *   2. The `data-sys` headings are the structure. The studio's Design system
+ *      tab frames this page and builds its rail by scanning them: an h2 opens
+ *      a folder, the h3s under it are its contents. Component-internal
+ *      headings carry no marker, so a component's own copy never becomes a
+ *      rail folder.
+ *
+ * NO NAVIGATION LIVES HERE. The studio rail is the navigation. A page with
+ * its own sidebar of anchors shows two rails for one document when framed.
+ * Opened by itself it simply scrolls, which is the accepted trade.
+ */
+import "./styles.css";
+
+export interface Swatch {
+  name: string; hex: string; token: string; on: string;
+  span?: number;      // columns out of 12; the mosaic is WEIGHTED by role
+  tall?: boolean;
+  use: string;
+}
+export interface TypeStep {
+  label: string; size: string; face: string; weight: number; lh: number; sample: string;
+}
+export interface SpaceStep { name: string; value: string; px: number; note: string }
+export interface LogoItem { name: string; file: string; note: string }
+
+interface Props {
+  brand: string;
+  palette: Swatch[];
+  proportion?: { hex: string; pct: number }[];
+  typeScale: TypeStep[];
+  spacing?: SpaceStep[];
+  logos?: LogoItem[];
+  displayName?: string;   // the face names shown in the specimen
+  bodyName?: string;
+  intro?: string;         // one line under the cover title
+}
+
+const {
+  brand, palette, proportion = [], typeScale,
+  spacing = [], logos = [],
+  displayName = "Display", bodyName = "Body",
+  intro = "Every component here is imported from the live site, so this page cannot drift from the thing it documents.",
+} = Astro.props;
+
+const has = (name: string) => Astro.slots.has(name);
+---
+
+<header class="sys-cover">
+  <img class="sys-cover-mark" src="/brand/mark.svg" alt="" />
+  <h1>Design<br />system</h1>
+  <p class="sys-lede">{intro}</p>
+  <div class="sys-contents">
+    <span class="sys-c-row"><i>01</i> Foundations</span>
+    <span class="sys-c-row"><i>02</i> Components</span>
+  </div>
+</header>
+
+<!-- ============ 01 FOUNDATIONS ============ -->
+<div class="sys-chapter">
+  <span class="sys-ch-n">01</span>
+  <h2 data-sys>Foundations</h2>
+  <p class="sys-ch-note">
+    Colour, type, and the rules that make a page read as {brand} before a
+    single component lands.
+  </p>
+</div>
+
+<section class="sys-band dark">
+  <div class="sys-head"><h3 data-sys>Colour</h3></div>
+  <div class="sys-mosaic">
+    {palette.map((c) => (
+      <button class:list={["sys-chip", { tall: c.tall }]} type="button" data-copy={c.hex}
+              style={`background:${c.hex};color:${c.on};grid-column:span ${c.span ?? 4}`}>
+        <span class="sys-chip-name">{c.name}</span>
+        <span class="sys-chip-use">{c.use}</span>
+        <span class="sys-chip-foot">
+          <code>{c.hex}</code><code class="dim">{c.token}</code>
+          <span class="sys-chip-copy">Copy</span>
+        </span>
+      </button>
+    ))}
+  </div>
+  {proportion.length > 0 && (
+    <>
+      <p class="sys-strip-label">How a page spends it</p>
+      <div class="sys-strip">
+        {proportion.map((p) => (
+          <span style={`background:${p.hex};width:${p.pct}%`} title={`${p.pct}%`}></span>
+        ))}
+      </div>
+    </>
+  )}
+</section>
+
+<section class="sys-band light">
+  <div class="sys-head"><h3 data-sys>Typography</h3></div>
+  <div class="sys-specimen">
+    <div class="sys-aa">Aa</div>
+    <div class="sys-faces">
+      <div>
+        <p class="sys-face-name">{displayName} <span>display</span></p>
+        <p class="sys-alphabet display">AaBbCcDdEeFfGgHhIiJjKkLlMm 0123456789</p>
+      </div>
+      <div>
+        <p class="sys-face-name">{bodyName} <span>body</span></p>
+        <p class="sys-alphabet body">AaBbCcDdEeFfGgHhIiJjKkLlMm 0123456789</p>
+      </div>
+    </div>
+  </div>
+  <div class="sys-scale">
+    {typeScale.map((t) => (
+      <div class="sys-scale-row">
+        <div class="sys-scale-meta"><span>{t.label}</span><code>{t.size}</code></div>
+        <p style={`font-family:${t.face};font-size:${t.size};font-weight:${t.weight};line-height:${t.lh};margin:0`}>
+          {t.sample}
+        </p>
+      </div>
+    ))}
+  </div>
+</section>
+
+{has("buttons") && (
+  <section class="sys-band dark">
+    <div class="sys-head"><h3 data-sys>Buttons</h3></div>
+    <p class="sys-note">Every tone, on both grounds. A button that only works on one is half a button.</p>
+    <div class="sys-two">
+      <div class="sys-ground g-dark"><slot name="buttons" /></div>
+      <div class="sys-ground g-light"><slot name="buttons-light" /></div>
+    </div>
+  </section>
+)}
+
+{spacing.length > 0 && (
+  <section class="sys-band light">
+    <div class="sys-head"><h3 data-sys>Spacing</h3></div>
+    <p class="sys-note">One scale. A gap not on it is a mistake, not a decision.</p>
+    <div class="sys-spacing">
+      {spacing.map((s) => (
+        <div class="sys-space-card">
+          <div class="sys-space-bar" style={`width:${s.px}px`}></div>
+          <span class="sys-space-name">{s.name}</span>
+          <code>{s.value}</code>
+          <p>{s.note}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+)}
+
+{has("illustration") && (
+  <section class="sys-band light">
+    <div class="sys-head"><h3 data-sys>Illustration</h3></div>
+    <p class="sys-note">
+      Drawn natively rather than placed as images, so each draws itself in and
+      keeps a slow idle. Each figure is its own component and can be used
+      anywhere a figure is wanted.
+    </p>
+    <div class="sys-gfx-row"><slot name="illustration" /></div>
+  </section>
+)}
+
+{logos.length > 0 && (
+  <section class="sys-band dark">
+    <div class="sys-head"><h3 data-sys>Logo</h3></div>
+    <div class="sys-logos">
+      {logos.map((l) => (
+        <div class="sys-logo-cell">
+          <div class="sys-logo-well"><img src={l.file} alt={`${brand} ${l.name}`} /></div>
+          <span class="sys-space-name">{l.name}</span>
+          <p>{l.note}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+)}
+
+<!-- ============ 02 COMPONENTS ============ -->
+<div class="sys-chapter">
+  <span class="sys-ch-n">02</span>
+  <h2 data-sys>Components</h2>
+  <p class="sys-ch-note">
+    The real ones, at true size, rendered by the same code the site ships.
+    Change a component and this page changes with it.
+  </p>
+</div>
+
+<slot name="components" />
+<slot />
+
+<script>
+  /* A catalog is a reference, not a scroll story: nothing may arrive hidden.
+     Components carry the host site's entrance choreography — a `.rv` class
+     waiting on a scroll sweep, animations gated on `.in` — and inside the
+     studio's frame that leaves everything below the fold rendered as an empty
+     band of ground until a sweep happens to fire. Reveal on load; the idle
+     animations still run, which is the part worth seeing. */
+  for (const el of document.querySelectorAll(".rv, .rv-stage")) el.classList.add("in");
+
+  /* The colour card is the copy target rather than a small icon: it is the
+     largest thing on the page and the one value anyone comes here to take. */
+  for (const el of document.querySelectorAll<HTMLElement>(".sys-chip")) {
+    el.addEventListener("click", async () => {
+      const hex = el.dataset.copy;
+      if (!hex) return;
+      try {
+        await navigator.clipboard.writeText(hex);
+        const label = el.querySelector(".sys-chip-copy");
+        if (!label) return;
+        label.textContent = "Copied";
+        el.classList.add("copied");
+        setTimeout(() => { label.textContent = "Copy"; el.classList.remove("copied"); }, 1300);
+      } catch { /* the hex is printed on the card anyway */ }
+    });
+  }
+</script>

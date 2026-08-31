@@ -1,0 +1,30 @@
+---
+/* One entry in the component catalog: a labelled frame around a real
+ * component. Adapted from the Spec component Ramble arrived at
+ * independently, which was better than what Elio had.
+ *
+ * `w`/`h` pin the frame to the component's true size where that matters (a
+ * widget on a grid), so what you see is the size it renders at on the page.
+ */
+interface Props {
+  name: string;
+  file?: string;
+  note?: string;
+  w?: number;
+  h?: number;
+  short?: boolean;   // a floating element that would otherwise sit in dead air
+}
+const { name, file, note, w, h, short = false } = Astro.props;
+---
+<section class="sys-band dark">
+  <div class="sys-head">
+    <h3 data-sys>{name}</h3>
+    {file && <code class="sys-src">{file}</code>}
+  </div>
+  {note && <p class="sys-note">{note}</p>}
+  <div class:list={["sys-stage", { short }]}>
+    <div class="sys-stage-inner" style={w && h ? `width:${w}px;height:${h}px` : undefined}>
+      <slot />
+    </div>
+  </div>
+</section>

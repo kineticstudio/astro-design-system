@@ -1,0 +1,17 @@
+{
+  "name": "@kineticstudio/astro-design-system",
+  "version": "1.0.0",
+  "description": "The design system document every Kinetic Astro site renders. Brand values come from the site; the document comes from here.",
+  "type": "module",
+  "license": "UNLICENSED",
+  "repository": "github:kineticstudio/astro-design-system",
+  "files": ["src"],
+  "exports": {
+    ".": "./src/DesignSystem.astro",
+    "./Stage.astro": "./src/Stage.astro",
+    "./styles.css": "./src/styles.css"
+  },
+  "peerDependencies": {
+    "astro": "^7.0.0"
+  }
+}
