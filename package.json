@@ -9,6 +9,7 @@
   "exports": {
     ".": "./src/DesignSystem.astro",
     "./Stage.astro": "./src/Stage.astro",
+    "./Library.astro": "./src/Library.astro",
     "./styles.css": "./src/styles.css"
   },
   "peerDependencies": {
