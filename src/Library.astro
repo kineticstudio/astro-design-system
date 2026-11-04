@@ -1,0 +1,228 @@
+---
+export interface Entry {
+  id: string; name: string; group: string; summary: string; source: string;
+  contract: string; code: string; usedBy: string[]; content: string;
+  variants: { name: string; href: string; surfaces?: { light: string; dark: string } }[];
+  overview?: { href: string; width: number; height: number };
+  theme?: "adaptive" | "fixed";
+  variantControl?: boolean;
+}
+interface Props { brand: string; logoSrc?: string; entries: Entry[] }
+const { brand, logoSrc, entries } = Astro.props;
+const groups = [...new Set(entries.map(entry => entry.group))];
+---
+<!doctype html>
+<html lang="en" data-preview-surface="dark" data-library-navigation="internal">
+  <head>
+    <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" /><title>{brand} Components</title>
+    <script is:inline>
+      try { document.documentElement.dataset.previewSurface = localStorage.getItem("kinetic-library-surface") === "light" ? "light" : "dark"; } catch {}
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#components">Skip to components</a>
+    <div class="library">
+      <aside class="rail">
+        <a class="rail__brand" href="#components">{logoSrc ? <img class="rail__logo" src={logoSrc} alt={brand} /> : <span>{brand}</span>}<small>Component library</small></a>
+        <label class="search"><span aria-hidden="true">⌕</span><input type="search" placeholder="Find a component…" aria-label="Search components" data-search /><kbd>/</kbd></label>
+        <p class="rail__count" data-count aria-live="polite">{entries.length} building blocks</p>
+        <nav aria-label="Component navigation">
+          {groups.map((group,i) => <div class="rail__group" data-nav-group>
+            <a class="rail__heading" href={`#collection-${i}`}>{group}</a>
+            {entries.filter(entry => entry.group === group).map(entry => <a class="rail__link" href={`#component-${entry.id}`} data-nav={entry.id}>{entry.name}</a>)}
+          </div>)}
+        </nav>
+      </aside>
+      <main id="components" tabindex="-1">
+        <header class="toolbar">
+          <div><span class="toolbar__eyebrow">The production library</span><h1>Components</h1></div>
+          <div class="surface" role="group" aria-label="Component preview surface">
+            <button type="button" data-surface="light" aria-pressed="false"><span aria-hidden="true">☼</span> Light</button>
+            <button type="button" data-surface="dark" aria-pressed="true"><span aria-hidden="true">☾</span> Dark</button>
+          </div>
+        </header>
+        <div class="inventory">
+          <div class="intro"><p>From the smallest detail<br />to the whole experience.</p><span>Real production components. Hover, click, type, explore.<br />Details are here when you need them.</span></div>
+          <p class="surface-note">Light / Dark changes the component previews only. <span>Brand surface</span> keeps its authored color treatment.</p>
+          {groups.map((group,i) => <section class="collection" id={`collection-${i}`} data-collection>
+            <header class="collection__heading"><h2>{group}</h2><span>{String(entries.filter(entry => entry.group === group).length).padStart(2,"0")}</span></header>
+            <div class="collection__list">
+              {entries.filter(entry => entry.group === group).map(entry => <article class="component" id={`component-${entry.id}`} data-entry={entry.id} data-search-text={`${entry.name} ${entry.group} ${entry.summary} ${entry.source} ${entry.usedBy.join(" ")}`.toLowerCase()}>
+                <header class="component__heading">
+                  <div><h3>{entry.name}</h3><p>{entry.summary}</p></div>
+                  <button class="details-button" type="button" data-details aria-label={`Details for ${entry.name}`} aria-haspopup="dialog"><span aria-hidden="true">ⓘ</span> Details</button>
+                </header>
+                <div class="component__controls">
+                  <span class="status"><i aria-hidden="true"></i> Interactive</span>
+                  <span class="surface-badge">{entry.theme === "adaptive" ? "Light + dark" : "Brand surface"}</span>
+                  {entry.variants.length > 1 && entry.variantControl !== false && <label class="variant">Example <select data-variant aria-label={`${entry.name} example`}>{entry.variants.map((variant,index) => <option value={index}>{variant.name}</option>)}</select></label>}
+                  <button class="replay" type="button" data-replay aria-label={`Replay ${entry.name}`}>↻ <span>Replay</span></button>
+                </div>
+                <div class="component__canvas" style={`--preview-height:${Math.min(800, Math.max(260,entry.overview?.height ?? 620))}px`}>
+                  <iframe class="library__sample-frame" title={`${entry.name} interactive example`} data-preview data-light={entry.variants[0].surfaces?.light ?? entry.variants[0].href} data-dark={entry.variants[0].surfaces?.dark ?? entry.variants[0].href} loading="lazy" src={entry.variants[0].surfaces?.dark ?? entry.variants[0].href}></iframe>
+                </div>
+                <footer class="component__usage"><span>Used on</span><p>{entry.usedBy.length ? entry.usedBy.join(" · ") : "Available to compose"}</p></footer>
+                <script type="application/json" data-variants set:html={JSON.stringify(entry.variants).replaceAll("<","\\u003c")} />
+                <template data-detail>
+                  <p class="sheet__eyebrow">{entry.group}</p><h2 id="sheet-title">{entry.name}</h2><p class="sheet__summary">{entry.summary}</p>
+                  <section><h3>Used on</h3><p>{entry.usedBy.join(" · ") || "Available to compose"}</p></section>
+                  <section><h3>Source of truth</h3><code class="sheet__source">{entry.source}</code></section>
+                  <section><h3>How to use it</h3><p>{entry.content}</p></section>
+                  <section><h3>Props & slots</h3><pre><code>{entry.contract}</code></pre></section>
+                  <section><div class="sheet__code-heading"><h3>Astro example</h3><button type="button" data-copy>Copy</button></div><pre data-example><code>{entry.code}</code></pre><span class="sheet__copy-status" data-copy-status role="status"></span></section>
+                </template>
+              </article>)}
+            </div>
+          </section>)}
+          <div class="empty" data-empty hidden><h2>No components found.</h2><p>Try “button”, “FAQ”, or a page name.</p><button type="button" data-clear>Clear search</button></div>
+        </div>
+      </main>
+    </div>
+    <dialog class="sheet" aria-labelledby="sheet-title">
+      <div class="sheet__bar"><span>Component details</span><button type="button" data-close aria-label="Close component details" autofocus>✕</button></div>
+      <div class="sheet__content"></div>
+    </dialog>
+    <script>
+      const root = document.documentElement;
+      const cards = [...document.querySelectorAll<HTMLElement>("[data-entry]")];
+      const search = document.querySelector<HTMLInputElement>("[data-search]")!;
+      const dialog = document.querySelector<HTMLDialogElement>(".sheet")!;
+      const content = document.querySelector<HTMLElement>(".sheet__content")!;
+      const themeButtons = [...document.querySelectorAll<HTMLButtonElement>("button[data-surface]")];
+      const frameFor = (card: HTMLElement) => card.querySelector<HTMLIFrameElement>("[data-preview]")!;
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+      const pendingLoads = new WeakMap<HTMLIFrameElement, AbortController>();
+      const swipes = new Map<HTMLIFrameElement, Animation>();
+      function updatePreview(frame: HTMLIFrameElement, href: string, animate = false, delay = 0) {
+        pendingLoads.get(frame)?.abort();
+        swipes.get(frame)?.cancel();
+        swipes.delete(frame);
+        if (animate && !reducedMotion.matches) {
+          const controller = new AbortController();
+          pendingLoads.set(frame, controller);
+          frame.addEventListener("load", () => {
+            // Ignore a previous navigation's late load after a rapid toggle.
+            try { if (frame.contentWindow?.location.href !== new URL(href, document.baseURI).href) return; } catch { return; }
+            controller.abort();
+            pendingLoads.delete(frame);
+            if (reducedMotion.matches || typeof frame.animate !== "function") return;
+            const rect = frame.getBoundingClientRect();
+            if (!rect.width || rect.bottom <= 0 || rect.top >= window.innerHeight) return;
+            const swipe = frame.animate([
+              { clipPath: "inset(0 100% 0 0)", transform: "translateX(16px)" },
+              { clipPath: "inset(0 0% 0 0)", transform: "translateX(0)" },
+            ], { duration: 620, delay, easing: "cubic-bezier(.2,.75,.2,1)", fill: "backwards" });
+            swipes.set(frame, swipe);
+            swipe.onfinish = () => { if (swipes.get(frame) === swipe) swipes.delete(frame); };
+          }, { signal: controller.signal });
+        }
+        frame.src = href;
+      }
+      reducedMotion.addEventListener("change", () => {
+        if (reducedMotion.matches) { swipes.forEach(swipe => swipe.cancel()); swipes.clear(); }
+      });
+      function setSurface(surface: "light" | "dark", persist = true) {
+        root.dataset.previewSurface = surface;
+        themeButtons.forEach(button => button.setAttribute("aria-pressed", String(button.dataset.surface === surface)));
+        let visibleIndex = 0;
+        cards.forEach(card => {
+          const frame = frameFor(card);
+          const href = frame.dataset[surface]!;
+          if (frame.getAttribute("src") !== href) {
+            const rect = frame.getBoundingClientRect();
+            const visible = !card.hidden && rect.bottom > 0 && rect.top < window.innerHeight;
+            updatePreview(frame, href, persist, visible ? Math.min(visibleIndex++ * 55, 165) : 0);
+          }
+        });
+        if (persist) { try { localStorage.setItem("kinetic-library-surface", surface); } catch {} }
+      }
+      setSurface(root.dataset.previewSurface === "light" ? "light" : "dark",false);
+      themeButtons.forEach(button => button.addEventListener("click", () => setSurface(button.dataset.surface as "light" | "dark")));
+      function filter() {
+        const terms = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+        let visible = 0;
+        cards.forEach(card => {
+          card.hidden = !terms.every(term => card.dataset.searchText!.includes(term));
+          if (!card.hidden) visible++;
+          document.querySelector<HTMLElement>(`[data-nav="${card.dataset.entry}"]`)!.hidden = card.hidden;
+        });
+        document.querySelectorAll<HTMLElement>("[data-collection]").forEach(group => group.hidden = !group.querySelector("[data-entry]:not([hidden])"));
+        document.querySelectorAll<HTMLElement>("[data-nav-group]").forEach(group => group.hidden = !group.querySelector("[data-nav]:not([hidden])"));
+        document.querySelector("[data-count]")!.textContent = `${visible} building block${visible === 1 ? "" : "s"}`;
+        (document.querySelector("[data-empty]") as HTMLElement).hidden = visible > 0;
+      }
+      search.addEventListener("input", filter);
+      document.querySelector("[data-clear]")!.addEventListener("click", () => { search.value=""; filter(); search.focus(); });
+      document.addEventListener("keydown", event => {
+        const target = event.target as HTMLElement;
+        if (event.key === "/" && !dialog.open && !target.matches("input,textarea,select,[contenteditable]")) { event.preventDefault(); search.focus(); }
+      });
+      cards.forEach(card => {
+        const frame = frameFor(card);
+        card.querySelector("[data-replay]")!.addEventListener("click", () => updatePreview(frame, frame.getAttribute("src")!, true));
+        card.querySelector<HTMLSelectElement>("[data-variant]")?.addEventListener("change", event => {
+          const variants = JSON.parse(card.querySelector("[data-variants]")!.textContent!);
+          const variant = variants[Number((event.target as HTMLSelectElement).value)];
+          frame.dataset.light = variant.surfaces?.light ?? variant.href;
+          frame.dataset.dark = variant.surfaces?.dark ?? variant.href;
+          updatePreview(frame, frame.dataset[root.dataset.previewSurface === "light" ? "light" : "dark"]!, true);
+        });
+        card.querySelector("[data-details]")!.addEventListener("click", () => {
+          content.replaceChildren((card.querySelector("[data-detail]") as HTMLTemplateElement).content.cloneNode(true));
+          dialog.showModal();
+          content.scrollTop = 0;
+        });
+      });
+      document.querySelector("[data-close]")!.addEventListener("click", () => dialog.close());
+      dialog.addEventListener("click", event => { if (event.target === dialog) { const r=dialog.getBoundingClientRect(); if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom) dialog.close(); } });
+      dialog.addEventListener("close", () => content.replaceChildren());
+      content.addEventListener("click", async event => {
+        if (!(event.target as HTMLElement).closest("[data-copy]")) return;
+        const status = content.querySelector("[data-copy-status]")!;
+        try { await navigator.clipboard.writeText(content.querySelector("[data-example]")!.textContent!); status.textContent = "Copied to clipboard."; } catch { status.textContent = "Copy unavailable. Select the example text to copy it."; }
+      });
+      let scheduled = false;
+      const updateActive = () => {
+        scheduled = false;
+        const visible = cards.filter(card => !card.hidden);
+        const active = visible.find(card => card.getBoundingClientRect().bottom > 150) ?? visible.at(-1);
+        document.querySelectorAll<HTMLElement>("[data-nav]").forEach(link => {
+          if (link.dataset.nav === active?.dataset.entry) link.setAttribute("aria-current","location"); else link.removeAttribute("aria-current");
+        });
+      };
+      document.addEventListener("scroll", () => { if (!scheduled) { scheduled=true; requestAnimationFrame(updateActive); } }, {passive:true});
+      search.addEventListener("input", updateActive);
+      updateActive();
+    </script>
+  </body>
+</html>
+<style is:global>
+  /* Studio chrome stays dark. Preview state must never recolor the library. */
+  :root { font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color-scheme:dark; --ground:#0c0c0c; --panel:#1e1e1d; --ink:#ededea; --muted:#a5a59e; --line:#2c2c2a; --hover:#2b2b29; --accent:#b1abff; scroll-behavior:smooth; scroll-padding-top:108px; background:var(--ground); color:var(--ink); }
+  * { box-sizing:border-box; } body { margin:0; } button,input,select { font:inherit; } button,a,input,select { -webkit-tap-highlight-color:transparent; } button { cursor:pointer; } a { color:inherit; text-decoration:none; } button { color:inherit; } button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,iframe:focus-visible { outline:2px solid var(--accent); outline-offset:4px; } [hidden] { display:none!important; }
+  .skip { position:fixed; top:8px; left:8px; transform:translateY(-160%); padding:12px; z-index:100; background:var(--panel); } .skip:focus { transform:none; }
+  .library { display:grid; grid-template-columns:224px minmax(0,1fr); min-height:100vh; }
+  .rail { position:sticky; top:0; height:100vh; overflow:auto; overscroll-behavior:contain; padding:28px 18px; border-right:1px solid var(--line); background:var(--ground); scrollbar-width:thin; scrollbar-color:var(--line) transparent; }
+  .rail__brand { display:flex; flex-direction:column; align-items:flex-start; gap:10px; padding:0 8px; font-weight:600; font-size:20px; letter-spacing:-.6px; } .rail__brand small { display:block; font-weight:400; font-size:12px; color:var(--muted); letter-spacing:0; } .rail__logo { display:block; width:100px; height:auto; }
+  .search { display:flex; align-items:center; gap:6px; background:var(--panel); border:1px solid var(--line); border-radius:8px; margin-top:30px; padding:10px; } .search>span { font-size:22px; line-height:16px; } .search input { min-width:0; width:100%; background:none; border:0; color:var(--ink); font-size:12px; outline:none; } .search:focus-within { outline:2px solid var(--accent); outline-offset:2px; } .search kbd { font:11px ui-monospace,monospace; padding:0 4px; border:1px solid var(--line); border-radius:3px; color:var(--muted); }
+  .rail__count { font-size:11px; color:var(--muted); margin:12px 9px 26px; } .rail__group { margin-bottom:26px; } .rail__heading { display:block; margin:0 9px 9px; font-size:10px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); } .rail__link { display:block; padding:8px 10px; font-size:12px; line-height:1.4; border-radius:6px; transition:background .18s,color .18s; } .rail__link:hover { background:var(--hover); } .rail__link[aria-current] { background:var(--hover); color:var(--accent); font-weight:600; }
+  main { min-width:0; } .toolbar { position:sticky; top:0; z-index:10; min-height:92px; display:flex; align-items:center; justify-content:space-between; gap:20px; padding:20px 36px; background:var(--ground); border-bottom:1px solid var(--line); } .toolbar__eyebrow { color:var(--muted); font-size:10px; text-transform:uppercase; letter-spacing:.1em; } .toolbar h1 { font-size:21px; font-weight:500; letter-spacing:-.5px; margin:5px 0 0; }
+  .surface { position:relative; isolation:isolate; display:grid; grid-template-columns:1fr 1fr; gap:3px; padding:4px; border:1px solid var(--line); border-radius:9px; }
+  .surface::before { content:""; position:absolute; z-index:-1; inset:4px auto 4px 4px; width:calc((100% - 11px) / 2); background:var(--panel); border:1px solid var(--line); border-radius:5px; box-shadow:0 1px 4px #0003; transition:transform .36s cubic-bezier(.2,.75,.2,1); }
+  :root[data-preview-surface="dark"] .surface::before { transform:translateX(calc(100% + 3px)); }
+  .surface button { display:flex; justify-content:center; align-items:center; gap:7px; font-size:12px; border:0; border-radius:5px; background:none; padding:8px 12px; color:var(--muted); transition:color .2s; } .surface button[aria-pressed="true"] { color:var(--ink); } .surface button>span { font-size:17px; line-height:15px; transition:transform .36s cubic-bezier(.2,.75,.2,1); } .surface button[aria-pressed="true"]>span { transform:rotate(-12deg); }
+  .inventory { max-width:1440px; margin:auto; padding:40px 36px 100px; } .intro { display:flex; align-items:end; justify-content:space-between; gap:24px; margin-bottom:24px; } .intro>p { font-size:clamp(25px,3vw,42px); letter-spacing:-1.5px; font-weight:400; line-height:1.12; margin:0; } .intro>span { max-width:300px; color:var(--muted); font-size:12px; line-height:1.7; } .surface-note { font-size:11px; color:var(--muted); line-height:1.8; margin:0 0 54px; } .surface-note>span { padding:3px 6px; border:1px solid var(--line); border-radius:4px; color:var(--ink); }
+  .collection { scroll-margin-top:110px; margin-top:48px; } .collection__heading { display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--line); padding-bottom:16px; margin-bottom:24px; } .collection__heading h2 { font-size:19px; font-weight:500; letter-spacing:-.4px; margin:0; } .collection__heading>span { font:11px ui-monospace,monospace; color:var(--muted); } .collection__list { display:grid; gap:28px; }
+  .component { min-width:0; scroll-margin-top:110px; border:1px solid var(--line); border-radius:12px; overflow:clip; background:var(--panel); } .component__heading { padding:22px 24px 18px; display:flex; align-items:start; justify-content:space-between; gap:20px; } .component h3 { font-size:17px; font-weight:500; letter-spacing:-.3px; margin:0 0 7px; } .component__heading p { font-size:12px; color:var(--muted); line-height:1.6; margin:0; max-width:640px; }
+  .details-button { display:flex; align-items:center; flex:none; gap:6px; border:1px solid var(--line); border-radius:6px; background:none; padding:7px 10px; font-size:11px; transition:background .2s; } .details-button:hover,.replay:hover { background:var(--hover); } .details-button>span { font-size:14px; }
+  .component__controls { display:flex; align-items:center; gap:12px; padding:0 24px 16px; font-size:10px; color:var(--muted); } .status { display:flex; align-items:center; gap:6px; } .status i { width:5px; height:5px; border-radius:50%; background:#779966; } .surface-badge { border-left:1px solid var(--line); padding-left:12px; } .variant { margin-left:auto; display:flex; align-items:center; gap:8px; } .variant select { max-width:180px; border:1px solid var(--line); border-radius:4px; background:var(--panel); color:var(--ink); padding:4px; font-size:11px; } .replay { margin-left:auto; background:none; border:0; border-radius:5px; padding:5px 7px; font-size:11px; } .variant+.replay { margin-left:0; }
+  .component__canvas { height:var(--preview-height); overflow:clip; border-block:1px solid var(--line); background:var(--ground); } .library__sample-frame { display:block; border:0; width:100%; height:100%; } .component__usage { display:flex; gap:12px; padding:13px 24px; font-size:10px; line-height:1.7; } .component__usage>span { color:var(--muted); flex:none; } .component__usage p { margin:0; }
+  .empty { padding:70px 0; text-align:center; } .empty h2 { font-size:24px; font-weight:500; } .empty p { color:var(--muted); font-size:14px; } .empty button { padding:10px 16px; border:1px solid var(--line); background:var(--panel); border-radius:6px; }
+  .sheet { inset:0 0 0 auto; margin:0; width:min(480px,100%); max-width:100%; height:100dvh; max-height:100dvh; border:0; border-left:1px solid var(--line); padding:0; background:var(--panel); color:var(--ink); box-shadow:-20px 0 80px #0002; } .sheet[open] { display:flex; flex-direction:column; animation:sheet-in .25s ease both; } .sheet::backdrop { background:#0005; } .sheet__bar { display:flex; align-items:center; justify-content:space-between; padding:18px 24px; border-bottom:1px solid var(--line); font-size:12px; } .sheet__bar button { background:none; border:1px solid var(--line); width:32px; height:32px; border-radius:6px; } .sheet__content { overflow:auto; overscroll-behavior:contain; padding:32px 28px 60px; } .sheet__eyebrow { color:var(--muted); text-transform:uppercase; letter-spacing:.08em; font-size:10px; } .sheet h2 { font-size:30px; font-weight:500; letter-spacing:-1px; margin:12px 0; } .sheet p { font-size:13px; line-height:1.7; } .sheet__summary { color:var(--muted); } .sheet section { margin-top:30px; } .sheet h3 { font-size:12px; font-weight:600; margin:0 0 12px; } .sheet pre { overflow:auto; padding:16px; background:var(--ground); border:1px solid var(--line); border-radius:8px; font:11px/1.7 ui-monospace,monospace; white-space:pre-wrap; overflow-wrap:anywhere; } .sheet__source { font:11px/1.7 ui-monospace,monospace; overflow-wrap:anywhere; } .sheet__code-heading { display:flex; justify-content:space-between; align-items:center; } .sheet__code-heading h3 { margin:0; } .sheet__code-heading button { font-size:11px; border:1px solid var(--line); background:none; padding:6px 10px; border-radius:5px; } .sheet__copy-status { font-size:11px; color:var(--muted); } html:has(dialog[open]) { overflow:hidden; }
+  @keyframes sheet-in { from { opacity:0; transform:translateX(24px); } to { opacity:1; transform:none; } }
+  @media(min-width:1400px) { .collection:has(#component-button) .collection__list { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+  @media(max-width:1000px) { .library { grid-template-columns:190px minmax(0,1fr); } .rail { padding:24px 12px; } .toolbar { padding-inline:24px; } .inventory { padding-inline:24px; } .intro { display:block; } .intro>span { display:block; margin-top:20px; } }
+  @media(max-width:700px) { .library { display:block; } .rail { position:relative; height:auto; border-right:0; border-bottom:1px solid var(--line); padding:20px; } .rail__brand small { display:inline; margin-left:10px; } .rail__brand { font-size:18px; } .rail__mark { font-size:25px; } .search { margin-top:18px; } .rail__count { margin:10px 0; } .rail nav { max-height:180px; overflow:auto; display:grid; grid-template-columns:1fr 1fr; gap:12px; } .rail__group { margin-bottom:8px; } .toolbar { padding:16px 20px; min-height:84px; } .inventory { padding:28px 16px 60px; } .component__heading { padding:20px 16px 16px; gap:12px; } .component__controls { padding-inline:16px; gap:8px; flex-wrap:wrap; } .component__usage { padding-inline:16px; } .surface button { padding:8px; } .variant select { max-width:130px; } }
+  @media(prefers-reduced-motion:reduce) { :root { scroll-behavior:auto; } *,*::before,*::after { animation:none!important; transition:none!important; } }
+</style>
